@@ -1,5 +1,5 @@
 /**
- * Vercel Edge Function — RepairLens AI Analysis
+ * Netlify Function — RepairLens AI Analysis
  *
  * Receives pre-calculated price analysis data and generates
  * natural-language explanations via 阿里云通义千问 (DashScope) API.
@@ -59,8 +59,7 @@ function buildUserPrompt(data) {
   if (noDataAvailable) {
     prompt += `**重要**：该维修项目暂无市场价格数据。
 
-请基于此情况生成分析报告：
-`;
+请基于此情况生成分析报告：`;
   } else {
     prompt += `## 系统计算的费用区间
 **零件成本**：¥${partsRange[0]} - ¥${partsRange[1]}
@@ -80,8 +79,7 @@ function buildUserPrompt(data) {
 
     if (hasUnknownItems) {
       prompt += `
-**注意**：部分维修项目未收录在价格数据库中，以上区间仅基于已收录项目计算。
-`;
+**注意**：部分维修项目未收录在价格数据库中，以上区间仅基于已收录项目计算。`;
     }
   }
 
@@ -91,46 +89,46 @@ function buildUserPrompt(data) {
   return prompt;
 }
 
-export default async function handler(req) {
+// === Netlify Function Handler ===
+
+export default async function handler(event) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  };
+
   // CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       },
-    });
+    };
   }
 
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   const apiKey = process.env.DASHSCOPE_API_KEY;
   if (!apiKey) {
-    console.error('DASHSCOPE_API_KEY not configured on Vercel');
-    return new Response(
-      JSON.stringify({ error: 'DASHSCOPE_API_KEY not configured' }),
-      {
-        status: 502,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    console.error('DASHSCOPE_API_KEY not configured on Netlify');
+    return {
+      statusCode: 502,
+      headers,
+      body: JSON.stringify({ error: 'DASHSCOPE_API_KEY not configured' }),
+    };
   }
 
   try {
-    const body = await req.json();
+    const body = JSON.parse(event.body);
     const userPrompt = buildUserPrompt(body);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeout = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(DASHSCOPE_API_URL, {
       method: 'POST',
@@ -159,36 +157,26 @@ export default async function handler(req) {
     const result = await response.json();
     const text = result.choices?.[0]?.message?.content || '';
 
-    // Parse JSON from the response
     let parsed;
     try {
-      // Strip any potential markdown code fences
       const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       parsed = JSON.parse(cleaned);
     } catch {
-      // If parsing fails, return fallback
       throw new Error('Failed to parse AI response as JSON');
     }
 
-    return new Response(JSON.stringify(parsed), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(parsed),
+    };
   } catch (error) {
     console.error('AI analysis error:', error.message);
 
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 502,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return {
+      statusCode: 502,
+      headers,
+      body: JSON.stringify({ error: error.message }),
+    };
   }
 }

@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "api"
+
+# Rewrite /api/* → /.netlify/functions/* so client code stays unchanged
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
