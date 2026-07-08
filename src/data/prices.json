@@ -1,0 +1,345 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-07-08",
+  "categories": {
+    "air_conditioner": {
+      "name": "空调",
+      "icon": "❄️",
+      "repair_items": [
+        {
+          "id": "ac_compressor",
+          "name": "压缩机更换",
+          "parts_cost": [800, 2500],
+          "labor_cost": [200, 500],
+          "visit_fee": [30, 80],
+          "notes": "变频压缩机价格偏高（1500-2500），定频偏低（800-1500）。含冷媒回收加注费用。"
+        },
+        {
+          "id": "ac_refrigerant",
+          "name": "加氟/充氟",
+          "parts_cost": [100, 400],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "R22制冷剂价格低，R410a/R32价格偏高。需确认泄漏点是否修复，否则加氟后短期可能再次失效。"
+        },
+        {
+          "id": "ac_capacitor",
+          "name": "电容更换",
+          "parts_cost": [30, 120],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "启动电容故障是空调不制冷的常见原因，更换简单，成本低。"
+        },
+        {
+          "id": "ac_fan_motor",
+          "name": "风扇电机更换",
+          "parts_cost": [150, 500],
+          "labor_cost": [120, 250],
+          "visit_fee": [30, 80],
+          "notes": "室内机或室外机风扇电机故障。室外机更换可能涉及高空作业费。"
+        },
+        {
+          "id": "ac_circuit_board",
+          "name": "电路板维修",
+          "parts_cost": [200, 800],
+          "labor_cost": [150, 300],
+          "visit_fee": [30, 80],
+          "notes": "变频空调电路板维修难度大、成本高；定频空调相对简单。"
+        },
+        {
+          "id": "ac_drain_pipe",
+          "name": "排水管更换",
+          "parts_cost": [20, 60],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "排水管堵塞或破损导致漏水，更换简单。"
+        },
+        {
+          "id": "ac_relocation",
+          "name": "移机安装",
+          "parts_cost": [50, 200],
+          "labor_cost": [200, 500],
+          "visit_fee": [50, 100],
+          "notes": "含拆机、运输、重新安装。高空作业需额外加收作业费（100-300元）。"
+        },
+        {
+          "id": "ac_cleaning",
+          "name": "清洗保养",
+          "parts_cost": [10, 50],
+          "labor_cost": [80, 200],
+          "visit_fee": [30, 80],
+          "notes": "普通清洗与深度清洗价格差异大。深度清洗含拆机清洗蒸发器。"
+        }
+      ]
+    },
+    "refrigerator": {
+      "name": "冰箱",
+      "icon": "🧊",
+      "repair_items": [
+        {
+          "id": "rf_compressor",
+          "name": "压缩机更换",
+          "parts_cost": [600, 1800],
+          "labor_cost": [200, 400],
+          "visit_fee": [30, 80],
+          "notes": "变频压缩机价格高于定频。含制冷剂回收加注。"
+        },
+        {
+          "id": "rf_thermostat",
+          "name": "温控器更换",
+          "parts_cost": [50, 200],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "机械温控器便宜，电子温控器偏贵。"
+        },
+        {
+          "id": "rf_door_seal",
+          "name": "门封条更换",
+          "parts_cost": [50, 150],
+          "labor_cost": [50, 100],
+          "visit_fee": [30, 80],
+          "notes": "门封条老化导致密封不严、耗电量增加。"
+        },
+        {
+          "id": "rf_refrigerant",
+          "name": "制冷剂充注",
+          "parts_cost": [80, 300],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "需先排查漏点，直接充注治标不治本。"
+        },
+        {
+          "id": "rf_circuit_board",
+          "name": "电路板维修",
+          "parts_cost": [200, 700],
+          "labor_cost": [150, 300],
+          "visit_fee": [30, 80],
+          "notes": "变频冰箱电路板维修成本较高。"
+        },
+        {
+          "id": "rf_fan_motor",
+          "name": "风扇电机更换",
+          "parts_cost": [80, 250],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "风冷冰箱内部风扇故障，影响冷气循环。"
+        },
+        {
+          "id": "rf_defrost",
+          "name": "除霜系统维修",
+          "parts_cost": [50, 200],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "除霜加热管或化霜定时器故障，导致冰箱结霜严重。"
+        }
+      ]
+    },
+    "washing_machine": {
+      "name": "洗衣机",
+      "icon": "👕",
+      "repair_items": [
+        {
+          "id": "wm_motor",
+          "name": "电机更换",
+          "parts_cost": [300, 900],
+          "labor_cost": [150, 300],
+          "visit_fee": [30, 80],
+          "notes": "滚筒洗衣机DD直驱电机价格较高。"
+        },
+        {
+          "id": "wm_circuit_board",
+          "name": "电路板维修",
+          "parts_cost": [200, 700],
+          "labor_cost": [150, 300],
+          "visit_fee": [30, 80],
+          "notes": "电脑板故障可能导致洗衣机无法启动或程序异常。"
+        },
+        {
+          "id": "wm_drain_pump",
+          "name": "排水泵更换",
+          "parts_cost": [80, 250],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "排水泵堵塞或烧毁导致无法排水。"
+        },
+        {
+          "id": "wm_door_lock",
+          "name": "门锁更换",
+          "parts_cost": [50, 180],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "门锁故障导致洗衣机无法启动（安全保护机制）。"
+        },
+        {
+          "id": "wm_shock_absorber",
+          "name": "减震器更换",
+          "parts_cost": [60, 200],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "减震器老化导致脱水时震动噪音大。"
+        },
+        {
+          "id": "wm_belt",
+          "name": "皮带更换",
+          "parts_cost": [20, 80],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "皮带磨损导致滚筒不转，更换简单。"
+        },
+        {
+          "id": "wm_inlet_valve",
+          "name": "进水阀更换",
+          "parts_cost": [40, 150],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "进水阀故障导致不进水或进水不止。"
+        },
+        {
+          "id": "wm_bearing",
+          "name": "滚筒轴承更换",
+          "parts_cost": [100, 400],
+          "labor_cost": [200, 500],
+          "visit_fee": [30, 80],
+          "notes": "维修难度大，需拆解滚筒。人工费较高，且维修后需重新做动平衡。"
+        }
+      ]
+    },
+    "television": {
+      "name": "电视",
+      "icon": "📺",
+      "repair_items": [
+        {
+          "id": "tv_screen",
+          "name": "屏幕更换",
+          "parts_cost": [600, 5000],
+          "labor_cost": [200, 500],
+          "visit_fee": [50, 100],
+          "notes": "屏幕成本占电视总价60-80%。大尺寸或OLED屏幕价格可达数千元。低端电视换屏不如买新。"
+        },
+        {
+          "id": "tv_power_board",
+          "name": "电源板维修",
+          "parts_cost": [100, 400],
+          "labor_cost": [150, 300],
+          "visit_fee": [50, 100],
+          "notes": "电源板是电视常见故障点，维修相对简单。"
+        },
+        {
+          "id": "tv_main_board",
+          "name": "主板维修",
+          "parts_cost": [200, 800],
+          "labor_cost": [150, 350],
+          "visit_fee": [50, 100],
+          "notes": "主板集成度高，通常需要更换而非维修。"
+        },
+        {
+          "id": "tv_backlight",
+          "name": "背光维修",
+          "parts_cost": [80, 300],
+          "labor_cost": [150, 300],
+          "visit_fee": [50, 100],
+          "notes": "背光灯条更换需拆屏，操作风险大，易导致屏幕损坏。"
+        },
+        {
+          "id": "tv_speaker",
+          "name": "喇叭更换",
+          "parts_cost": [30, 150],
+          "labor_cost": [80, 150],
+          "visit_fee": [50, 100],
+          "notes": "更换简单，成本低。"
+        },
+        {
+          "id": "tv_interface_board",
+          "name": "接口板维修",
+          "parts_cost": [50, 250],
+          "labor_cost": [100, 200],
+          "visit_fee": [50, 100],
+          "notes": "HDMI/USB等接口损坏，更换接口板即可。"
+        },
+        {
+          "id": "tv_remote_receiver",
+          "name": "遥控接收器更换",
+          "parts_cost": [20, 80],
+          "labor_cost": [60, 120],
+          "visit_fee": [50, 100],
+          "notes": "红外接收器故障导致遥控失灵，更换简单。"
+        }
+      ]
+    },
+    "water_heater": {
+      "name": "热水器",
+      "icon": "🔥",
+      "repair_items": [
+        {
+          "id": "wh_tank",
+          "name": "内胆更换",
+          "parts_cost": [500, 2000],
+          "labor_cost": [200, 500],
+          "visit_fee": [30, 80],
+          "notes": "内胆漏水通常建议整机更换而非单独换内胆。在保修期内可免费更换。"
+        },
+        {
+          "id": "wh_heating_element",
+          "name": "加热管更换",
+          "parts_cost": [60, 200],
+          "labor_cost": [80, 200],
+          "visit_fee": [30, 80],
+          "notes": "加热管是热水器最常见故障，更换简单，成本较低。"
+        },
+        {
+          "id": "wh_thermostat",
+          "name": "温控器更换",
+          "parts_cost": [40, 150],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "温控器故障导致水温异常或无法加热。"
+        },
+        {
+          "id": "wh_magnesium_rod",
+          "name": "镁棒更换",
+          "parts_cost": [30, 100],
+          "labor_cost": [80, 150],
+          "visit_fee": [30, 80],
+          "notes": "镁棒是消耗品，建议1-2年更换一次以保护内胆。"
+        },
+        {
+          "id": "wh_circuit_board",
+          "name": "电路板维修",
+          "parts_cost": [100, 500],
+          "labor_cost": [150, 300],
+          "visit_fee": [30, 80],
+          "notes": "燃气热水器电路板故障率高于电热水器。"
+        },
+        {
+          "id": "wh_pressure_valve",
+          "name": "泄压阀更换",
+          "parts_cost": [30, 100],
+          "labor_cost": [60, 120],
+          "visit_fee": [30, 80],
+          "notes": "泄压阀滴水属正常现象。持续大量出水才需更换。"
+        },
+        {
+          "id": "wh_igniter",
+          "name": "点火器更换",
+          "parts_cost": [60, 200],
+          "labor_cost": [80, 180],
+          "visit_fee": [30, 80],
+          "notes": "仅燃气热水器适用。点火器故障导致无法点火或点火后熄火。"
+        },
+        {
+          "id": "wh_fan",
+          "name": "风机更换",
+          "parts_cost": [100, 400],
+          "labor_cost": [100, 200],
+          "visit_fee": [30, 80],
+          "notes": "仅强排式燃气热水器适用。风机故障导致排烟不畅、CO报警。"
+        }
+      ]
+    },
+    "other": {
+      "name": "其他",
+      "icon": "🔧",
+      "repair_items": []
+    }
+  }
+}
