@@ -75,8 +75,6 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
 
   // Always have content: AI > local fallback
   const aiSections = reportData?.aiSections || generateLocalFallback(analysis);
-  const isRealAI = reportData?.aiSections && !reportData.aiError;
-
   const handleStartOver = () => {
     dispatch({ type: 'RESET' });
   };
@@ -240,17 +238,9 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
             </div>
           )}
         </div>
-        <div className="inline-flex items-center gap-2 mt-3">
-          <span className={`inline-block px-2 py-0.5 rounded text-xs ${
-            isRealAI
-              ? 'bg-brand-100 text-brand-700'
-              : reportData?.aiError && aiPendingRef.current
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-slate-200 text-slate-500'
-          }`}>
-            {isRealAI ? 'AI 生成' : '本地分析'}
-          </span>
-        </div>
+        <span className="inline-block mt-3 px-2 py-0.5 rounded text-xs bg-slate-200 text-slate-500">
+          AI 生成 · 仅供参考
+        </span>
       </ReportSection>
 
       {/* Disclaimer */}
