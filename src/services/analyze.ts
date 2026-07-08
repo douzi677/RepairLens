@@ -144,31 +144,39 @@ function parseAIResponse(text: string): AIReportSections {
 async function fetchViaEdgeFunction(
   analysis: AnalysisResult
 ): Promise<AIReportSections> {
-  const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      category: analysis.categoryName,
-      modelNumber: analysis.modelNumber || '未提供',
-      items: analysis.selectedItems.map((i) => i.name),
-      userQuote: analysis.userQuote,
-      partsRange: analysis.costBreakdown.partsRange,
-      laborRange: analysis.costBreakdown.laborRange,
-      visitFeeRange: analysis.costBreakdown.visitFeeRange,
-      totalRange: analysis.costBreakdown.totalRange,
-      tier: analysis.comparison.tier,
-      premiumAmount: analysis.comparison.premiumAmount,
-      premiumPercent: analysis.comparison.premiumPercent,
-      noDataAvailable: analysis.noDataAvailable,
-      hasUnknownItems: analysis.costBreakdown.hasUnknownItems,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-  if (!response.ok) {
-    throw new Error(`Edge Function returned ${response.status}`);
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        category: analysis.categoryName,
+        modelNumber: analysis.modelNumber || '未提供',
+        items: analysis.selectedItems.map((i) => i.name),
+        userQuote: analysis.userQuote,
+        partsRange: analysis.costBreakdown.partsRange,
+        laborRange: analysis.costBreakdown.laborRange,
+        visitFeeRange: analysis.costBreakdown.visitFeeRange,
+        totalRange: analysis.costBreakdown.totalRange,
+        tier: analysis.comparison.tier,
+        premiumAmount: analysis.comparison.premiumAmount,
+        premiumPercent: analysis.comparison.premiumPercent,
+        noDataAvailable: analysis.noDataAvailable,
+        hasUnknownItems: analysis.costBreakdown.hasUnknownItems,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Edge Function returned ${response.status}`);
+    }
+
+    return response.json();
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return response.json();
 }
 
 // === Fallback: direct DashScope call (local dev) ===
