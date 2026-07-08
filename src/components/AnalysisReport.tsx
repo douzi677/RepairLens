@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import type { WizardState, WizardAction, ReportData } from '../types';
-import { fetchAIReport } from '../services/analyze';
+import { useEffect, useRef } from 'react';
+import type { WizardState, WizardAction } from '../types';
+import { fetchAIReport, generateLocalFallback } from '../services/analyze';
 import { ReportSection } from './ReportSection';
 import { FeedbackButtons } from './FeedbackButtons';
 import { Button } from './ui/Button';
@@ -22,49 +22,60 @@ function formatRange(range: [number, number]): string {
 }
 
 export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
-  const { analysisResult, reportData, isAnalyzing } = state;
+  const { analysisResult, reportData } = state;
+  const aiPendingRef = useRef(false);
 
-  // Trigger AI call once analysis is done
+  // Show local fallback instantly, then upgrade to AI in background
   useEffect(() => {
     if (!analysisResult || reportData) return;
 
+    // 1. Show local fallback immediately (synchronous, no wait)
+    const localFallback = generateLocalFallback(analysisResult);
+    dispatch({
+      type: 'SET_REPORT_DATA',
+      payload: {
+        analysis: analysisResult,
+        aiSections: localFallback,
+        aiError: true,
+      },
+    });
+    aiPendingRef.current = true;
+
+    // 2. Try AI in background
     let cancelled = false;
 
     fetchAIReport(analysisResult)
       .then((aiSections) => {
         if (!cancelled) {
-          const data: ReportData = {
-            analysis: analysisResult,
-            aiSections,
-            aiError: false,
-          };
-          dispatch({ type: 'SET_REPORT_DATA', payload: data });
+          aiPendingRef.current = false;
+          dispatch({
+            type: 'SET_REPORT_DATA',
+            payload: {
+              analysis: analysisResult,
+              aiSections,
+              aiError: false,
+            },
+          });
         }
       })
       .catch(() => {
+        // Local fallback already showing — nothing to replace
         if (!cancelled) {
-          const data: ReportData = {
-            analysis: analysisResult,
-            aiSections: {
-              marketReference: '分析服务暂时不可用，请参考以上市场参考区间。',
-              riskWarnings: '建议在维修前与师傅确认所有费用明细，索要正规发票。',
-              suggestions: '如需更准确的价格参考，建议致电品牌官方售后服务中心。',
-              disclaimerNote: 'RepairLens 自动生成，仅供参考。',
-            },
-            aiError: true,
-          };
-          dispatch({ type: 'SET_REPORT_DATA', payload: data });
+          aiPendingRef.current = false;
         }
       });
 
     return () => { cancelled = true; };
-  }, [analysisResult, reportData, dispatch]);
+  }, [analysisResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!analysisResult) return null;
 
-  const { analysis, aiSections } = reportData || { analysis: analysisResult, aiSections: null };
+  const analysis = reportData?.analysis || analysisResult;
   const tier = tierConfig[analysis.comparison.tier];
-  const isLoading = isAnalyzing || !reportData;
+
+  // Always have content: AI > local fallback
+  const aiSections = reportData?.aiSections || generateLocalFallback(analysis);
+  const isRealAI = reportData?.aiSections && !reportData.aiError;
 
   const handleStartOver = () => {
     dispatch({ type: 'RESET' });
@@ -202,48 +213,44 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
         </ReportSection>
       )}
 
-      {/* AI Analysis — loading or content */}
+      {/* AI Analysis — content always shown */}
       <ReportSection title="AI 分析与建议" variant="highlight">
-        {isLoading ? (
-          <div className="space-y-3">
-            <div className="h-4 w-3/4 rounded animate-shimmer" />
-            <div className="h-4 w-full rounded animate-shimmer" />
-            <div className="h-4 w-5/6 rounded animate-shimmer" />
-            <div className="h-4 w-2/3 rounded animate-shimmer" />
-          </div>
-        ) : aiSections ? (
-          <div className="space-y-4 text-sm">
-            {aiSections.marketReference && (
-              <div>
-                <p className="font-medium text-slate-700 mb-1">市场参考</p>
-                <p className="text-slate-600">{aiSections.marketReference}</p>
-              </div>
-            )}
-            {aiSections.riskWarnings && (
-              <div>
-                <p className="font-medium text-slate-700 mb-1">风险提示</p>
-                <p className="text-slate-600">{aiSections.riskWarnings}</p>
-              </div>
-            )}
-            {aiSections.suggestions && (
-              <div>
-                <p className="font-medium text-slate-700 mb-1">建议</p>
-                <p className="text-slate-600">{aiSections.suggestions}</p>
-              </div>
-            )}
-            {aiSections.disclaimerNote && (
-              <div>
-                <p className="text-slate-500 italic text-xs">{aiSections.disclaimerNote}</p>
-              </div>
-            )}
-            {state.reportData?.aiError && (
-              <p className="text-xs text-amber-500 mt-2">AI 服务暂时不可用，以上为通用建议</p>
-            )}
-          </div>
-        ) : null}
-        <span className="inline-block mt-3 px-2 py-0.5 rounded text-xs bg-slate-200 text-slate-500">
-          AI 生成
-        </span>
+        <div className="space-y-4 text-sm">
+          {aiSections.marketReference && (
+            <div>
+              <p className="font-medium text-slate-700 mb-1">市场参考</p>
+              <p className="text-slate-600">{aiSections.marketReference}</p>
+            </div>
+          )}
+          {aiSections.riskWarnings && (
+            <div>
+              <p className="font-medium text-slate-700 mb-1">风险提示</p>
+              <p className="text-slate-600">{aiSections.riskWarnings}</p>
+            </div>
+          )}
+          {aiSections.suggestions && (
+            <div>
+              <p className="font-medium text-slate-700 mb-1">建议</p>
+              <p className="text-slate-600">{aiSections.suggestions}</p>
+            </div>
+          )}
+          {aiSections.disclaimerNote && (
+            <div>
+              <p className="text-slate-500 italic text-xs">{aiSections.disclaimerNote}</p>
+            </div>
+          )}
+        </div>
+        <div className="inline-flex items-center gap-2 mt-3">
+          <span className={`inline-block px-2 py-0.5 rounded text-xs ${
+            isRealAI
+              ? 'bg-brand-100 text-brand-700'
+              : reportData?.aiError && aiPendingRef.current
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-slate-200 text-slate-500'
+          }`}>
+            {isRealAI ? 'AI 生成' : '本地分析'}
+          </span>
+        </div>
       </ReportSection>
 
       {/* Disclaimer */}

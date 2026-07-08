@@ -29,7 +29,7 @@ const TIER_TEMPLATES: Record<string, AIReportSections> = {
   },
 };
 
-function generateLocalFallback(analysis: AnalysisResult): AIReportSections {
+export function generateLocalFallback(analysis: AnalysisResult): AIReportSections {
   console.log('Using Local AI Fallback');
 
   // No market data at all → special fallback
