@@ -112,17 +112,15 @@ export default async function handler(req) {
 
   const apiKey = process.env.DASHSCOPE_API_KEY;
   if (!apiKey) {
-    console.error('DASHSCOPE_API_KEY not configured');
+    console.error('DASHSCOPE_API_KEY not configured on Vercel');
     return new Response(
-      JSON.stringify({
-        marketReference: 'AI 分析服务未配置，以下为通用建议。',
-        riskWarnings: '维修过程中请确认所有费用明细，索要正规发票。',
-        suggestions: '建议多方比价，咨询品牌官方售后获取参考价格。',
-        disclaimerNote: 'AI 服务暂时不可用。',
-      }),
+      JSON.stringify({ error: 'DASHSCOPE_API_KEY not configured' }),
       {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        status: 502,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
       }
     );
   }
@@ -182,16 +180,10 @@ export default async function handler(req) {
   } catch (error) {
     console.error('AI analysis error:', error.message);
 
-    // Return graceful fallback
     return new Response(
-      JSON.stringify({
-        marketReference: '暂无法生成个性化分析，请参考以上市场数据。',
-        riskWarnings: '建议在维修前与师傅确认所有费用明细，了解是否包含额外服务费。',
-        suggestions: '如需更准确的价格参考，建议致电品牌官方售后服务中心。',
-        disclaimerNote: 'AI 分析暂时不可用，以上为通用建议。',
-      }),
+      JSON.stringify({ error: error.message }),
       {
-        status: 200,
+        status: 502,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
