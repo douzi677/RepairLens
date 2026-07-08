@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { WizardState, WizardAction, ReportData } from '../types';
-import { fetchAIReport, FALLBACK_AI_SECTIONS } from '../services/analyze';
+import { fetchAIReport } from '../services/analyze';
 import { ReportSection } from './ReportSection';
 import { FeedbackButtons } from './FeedbackButtons';
 import { Button } from './ui/Button';
@@ -45,7 +45,12 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
         if (!cancelled) {
           const data: ReportData = {
             analysis: analysisResult,
-            aiSections: FALLBACK_AI_SECTIONS,
+            aiSections: {
+              marketReference: '分析服务暂时不可用，请参考以上市场参考区间。',
+              riskWarnings: '建议在维修前与师傅确认所有费用明细，索要正规发票。',
+              suggestions: '如需更准确的价格参考，建议致电品牌官方售后服务中心。',
+              disclaimerNote: 'RepairLens 自动生成，仅供参考。',
+            },
             aiError: true,
           };
           dispatch({ type: 'SET_REPORT_DATA', payload: data });

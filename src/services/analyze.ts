@@ -1,17 +1,61 @@
 import type { AnalysisResult, AIReportSections } from '../types';
 
-// === Fallback text (used when AI is completely unavailable) ===
+// === Local AI Fallback — tier-specific report templates ===
 
-export const FALLBACK_AI_SECTIONS: AIReportSections = {
-  marketReference:
-    '以上价格区间基于市场公开数据统计，反映了独立维修店和品牌授权售后的常见报价范围。具体价格可能因地区、品牌和配件来源有所不同。',
-  riskWarnings:
-    '维修过程中可能涉及未预先告知的额外费用（如高空作业费、管道延长费等）。建议在维修前与师傅确认所有费用项目，并要求出具详细费用清单。',
-  suggestions:
-    '建议联系品牌官方售后服务中心获取同项目报价对比。如报价相差较大，可考虑咨询其他维修商。维修完成后索要正规发票和保修凭证。',
-  disclaimerNote:
-    '本报告由 RepairLens 自动生成，分析结果仅供参考。价格数据基于市场公开信息整理，不代表任何品牌官方报价。',
+const TIER_TEMPLATES: Record<string, AIReportSections> = {
+  '合理': {
+    marketReference: '报价基本位于市场参考区间内，收费较合理。',
+    riskWarnings: '确认维修完成后保留维修凭证即可。',
+    suggestions: '可以正常维修，无需过度担心。',
+    disclaimerNote: '价格仍可能因地区及品牌略有差异。',
+  },
+  '略高': {
+    marketReference: '报价略高于市场参考区间，但仍属于可能出现的收费范围。',
+    riskWarnings: '建议确认收费是否包含原厂配件及质保。',
+    suggestions: '可以尝试议价，或询问收费明细。',
+    disclaimerNote: '不同地区人工费用存在一定差异。',
+  },
+  '偏高': {
+    marketReference: '报价明显高于市场参考区间。',
+    riskWarnings: '需重点确认是否存在重复收费或配件溢价。',
+    suggestions: '建议咨询第二家维修点或官方售后进行比价。',
+    disclaimerNote: '本分析仅供参考，请结合实际维修情况判断。',
+  },
+  '严重偏高': {
+    marketReference: '报价远高于市场参考区间。',
+    riskWarnings: '存在明显高收费风险，请谨慎确认维修内容。',
+    suggestions: '建议暂停维修，要求出示旧配件，并咨询品牌官方售后。',
+    disclaimerNote: '若维修项目描述不完整，本结果可能存在误差。',
+  },
 };
+
+function generateLocalFallback(analysis: AnalysisResult): AIReportSections {
+  console.log('Using Local AI Fallback');
+
+  // No market data at all → special fallback
+  if (analysis.noDataAvailable) {
+    return {
+      marketReference: '暂未收录该维修项目的市场价格，请谨慎参考。',
+      riskWarnings: '无参考数据的情况下，建议多方比价后再做决定。',
+      suggestions: '建议联系品牌官方售后获取参考报价，并咨询至少两家维修商。',
+      disclaimerNote: '本分析仅供参考，价格数据仍在持续完善中。',
+    };
+  }
+
+  // Tier-specific template
+  const template = TIER_TEMPLATES[analysis.comparison.tier];
+  if (template) {
+    return { ...template };
+  }
+
+  // Ultimate fallback (should never reach here)
+  return {
+    marketReference: '以上价格区间基于市场公开数据统计，反映了独立维修店和品牌授权售后的常见报价范围。',
+    riskWarnings: '维修过程中请确认所有费用明细，索要正规发票。',
+    suggestions: '建议多方比价，咨询品牌官方售后获取参考价格。',
+    disclaimerNote: '本报告由 RepairLens 自动生成，分析结果仅供参考。',
+  };
+}
 
 // === System Prompt (shared with Edge Function) ===
 
@@ -190,6 +234,6 @@ export async function fetchAIReport(
     }
   }
 
-  // 3. Hard fallback: static template text
-  return FALLBACK_AI_SECTIONS;
+  // 3. Local AI Fallback: tier-specific report based on calculation results
+  return generateLocalFallback(analysis);
 }
