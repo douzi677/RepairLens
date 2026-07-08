@@ -2,13 +2,13 @@
  * Vercel Edge Function — RepairLens AI Analysis
  *
  * Receives pre-calculated price analysis data and generates
- * natural-language explanations via Claude API.
+ * natural-language explanations via 阿里云通义千问 (DashScope) API.
  *
  * CRITICAL: The AI NEVER calculates or fabricates prices.
  * All price data is pre-computed by the engine and passed in.
  */
 
-const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+const DASHSCOPE_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
 const SYSTEM_PROMPT = `你是RepairLens的家电维修报价分析助手。你的职责是帮助用户理解维修报价是否合理。
 
@@ -110,9 +110,9 @@ export default async function handler(req) {
     });
   }
 
-  const apiKey = process.env.CLAUDE_API_KEY;
+  const apiKey = process.env.DASHSCOPE_API_KEY;
   if (!apiKey) {
-    console.error('CLAUDE_API_KEY not configured');
+    console.error('DASHSCOPE_API_KEY not configured');
     return new Response(
       JSON.stringify({
         marketReference: 'AI 分析服务未配置，以下为通用建议。',
@@ -134,24 +134,20 @@ export default async function handler(req) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    const response = await fetch(CLAUDE_API_URL, {
+    const response = await fetch(DASHSCOPE_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-latest',
+        model: 'qwen-plus',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt },
+        ],
         max_tokens: 800,
         temperature: 0.3,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: userPrompt,
-          },
-        ],
       }),
       signal: controller.signal,
     });
@@ -159,11 +155,11 @@ export default async function handler(req) {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
+      throw new Error(`DashScope API error: ${response.status}`);
     }
 
     const result = await response.json();
-    const text = result.content?.[0]?.text || '';
+    const text = result.choices?.[0]?.message?.content || '';
 
     // Parse JSON from the response
     let parsed;

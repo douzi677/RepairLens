@@ -26,7 +26,7 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
 
   // Trigger AI call once analysis is done
   useEffect(() => {
-    if (!analysisResult || reportData || isAnalyzing) return;
+    if (!analysisResult || reportData) return;
 
     let cancelled = false;
 
@@ -53,7 +53,7 @@ export function AnalysisReport({ state, dispatch }: AnalysisReportProps) {
       });
 
     return () => { cancelled = true; };
-  }, [analysisResult, reportData, isAnalyzing, dispatch]);
+  }, [analysisResult, reportData, dispatch]);
 
   if (!analysisResult) return null;
 
